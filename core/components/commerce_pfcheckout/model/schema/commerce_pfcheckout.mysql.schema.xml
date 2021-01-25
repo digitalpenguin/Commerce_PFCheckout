@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="commerce_pfcheckout" baseClass="comSimpleObject" platform="mysql" defaultEngine="InnoDB" version="1.1">
+    <!--<object class="PFCheckoutOrderMessage" extends="comOrderMessage" />-->
+    <!--<object class="PFCheckoutProduct" extends="comProduct" />-->
+    <!--<object class="PFCheckoutShippingMethod" extends="comShippingMethod" />-->
+</model>
