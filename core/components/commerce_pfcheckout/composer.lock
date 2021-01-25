@@ -4,8 +4,58 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a9d7178a8aaf555c26281e7fcd8d5099",
-    "packages": [],
+    "content-hash": "1856b048b4d8cd7c3f7c90dbe4a3cfa7",
+    "packages": [
+        {
+            "name": "postfinancecheckout/sdk",
+            "version": "2.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pfpayments/php-sdk.git",
+                "reference": "f9245b064ade5c2eff1dc29f99a1b55f3eb8db9d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pfpayments/php-sdk/zipball/f9245b064ade5c2eff1dc29f99a1b55f3eb8db9d",
+                "reference": "f9245b064ade5c2eff1dc29f99a1b55f3eb8db9d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PostFinanceCheckout\\Sdk\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "wallee AG",
+                    "homepage": "https://wallee.com"
+                }
+            ],
+            "description": "PostFinance Checkout SDK for PHP",
+            "homepage": "http://github.com/pfpayments/php-sdk",
+            "keywords": [
+                "api",
+                "payment",
+                "php",
+                "postfinancecheckout",
+                "sdk"
+            ],
+            "time": "2020-12-17T10:38:07+00:00"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
