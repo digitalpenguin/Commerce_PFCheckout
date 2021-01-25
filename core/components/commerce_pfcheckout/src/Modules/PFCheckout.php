@@ -5,6 +5,7 @@ use modmore\Commerce\Admin\Configuration\About\ComposerPackages;
 use modmore\Commerce\Admin\Sections\SimpleSection;
 use modmore\Commerce\Events\Admin\PageEvent;
 use modmore\Commerce\Modules\BaseModule;
+use modmore\Commerce\Events\Gateways;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
@@ -38,11 +39,18 @@ class PFCheckout extends BaseModule {
 //        $this->adapter->loadPackage('commerce_pfcheckout', $path);
 
         // Add template path to twig
-//        $root = dirname(__DIR__, 2);
-//        $this->commerce->view()->addTemplatesPath($root . '/templates/');
+        $root = dirname(__DIR__, 2);
+        $this->commerce->view()->addTemplatesPath($root . '/templates/');
+
+        $dispatcher->addListener(\Commerce::EVENT_DASHBOARD_LOAD_ABOUT, [$this, 'addLibrariesToAbout']);
 
         // Add composer libraries to the about section (v0.12+)
-        $dispatcher->addListener(\Commerce::EVENT_DASHBOARD_LOAD_ABOUT, [$this, 'addLibrariesToAbout']);
+        $dispatcher->addListener(\Commerce::EVENT_GET_PAYMENT_GATEWAYS, [$this, 'addGateway']);
+
+    }
+
+    public function addGateway(Gateways $event) {
+        $event->addGateway(\DigitalPenguin\Commerce_PFCheckout\Gateways\Visa::class, $this->adapter->lexicon('commerce_pfcheckout.visa_gateway'));
     }
 
     public function getModuleConfiguration(\comModule $module)
