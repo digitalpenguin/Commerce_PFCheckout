@@ -16,7 +16,7 @@ use modmore\Commerce\Gateways\Interfaces\GatewayInterface;
 use modmore\Commerce\Gateways\Interfaces\TransactionInterface;
 use PostFinanceCheckout\Sdk\Model\LineItemType;
 
-class Visa implements GatewayInterface {
+class PostFinanceGateway implements GatewayInterface {
     /** @var Commerce */
     protected $commerce;
     protected $adapter;
@@ -41,36 +41,6 @@ class Visa implements GatewayInterface {
     public function view(comOrder $order)
     {
 
-        $spaceId = $this->method->getProperty('pfSpaceId');
-        $userId = $this->method->getProperty('pfUserId');
-        $secret = $this->method->getProperty('pfSecretApiKey');
-
-        // Setup API client
-        $client = new \PostFinanceCheckout\Sdk\ApiClient($userId, $secret);
-        $httpClientType = \PostFinanceCheckout\Sdk\Http\HttpClientFactory::TYPE_CURL;
-        $client->setHttpClientType($httpClientType);
-
-        // Create test transaction
-        $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-        $lineItem->setName('Red T-Shirt');
-        $lineItem->setUniqueId('5412');
-        $lineItem->setSku('red-t-shirt-123');
-        $lineItem->setQuantity(1);
-        $lineItem->setAmountIncludingTax(29.95);
-        $lineItem->setType(LineItemType::PRODUCT);
-
-
-        $transactionPayload = new \PostFinanceCheckout\Sdk\Model\TransactionCreate();
-        $transactionPayload->setCurrency('EUR');
-        $transactionPayload->setLineItems(array($lineItem));
-        $transactionPayload->setAutoConfirmationEnabled(true);
-
-        $transaction = $client->getTransactionService()->create($spaceId, $transactionPayload);
-
-        // Create Payment Page URL:
-        $redirectionUrl = $client->getTransactionPaymentPageService()->paymentPageUrl($spaceId, $transaction->getId());
-
-        $this->commerce->modx->log(1,$redirectionUrl);
 
         return $this->commerce->view()->render('frontend/gateways/visa.twig', [
             'method'        =>  $this->method->get('id')
@@ -87,19 +57,49 @@ class Visa implements GatewayInterface {
      */
     public function submit(comTransaction $transaction, array $data)
     {
-        // Validate the request
-        if (!array_key_exists('required_value', $data) || empty($data['required_value'])) {
-            throw new TransactionException('required_value is missing.');
-        }
+        $order = $transaction->getOrder();
 
-        $value = htmlentities($data['required_value'], ENT_QUOTES, 'UTF-8');
+        $spaceId = $this->method->getProperty('pfSpaceId');
+        $userId = $this->method->getProperty('pfUserId');
+        $secret = $this->method->getProperty('pfSecretApiKey');
 
-        $transaction->setProperty('required_value', $value);
-        $transaction->save();
+        // Setup API client
+        $client = new \PostFinanceCheckout\Sdk\ApiClient($userId, $secret);
+        $httpClientType = \PostFinanceCheckout\Sdk\Http\HttpClientFactory::TYPE_CURL;
+        $client->setHttpClientType($httpClientType);
 
-        // ManualTransaction is used by the Manual payment gateway and has an always-successful response;
-        // useful for testing but not quite for actual payments.
-        return new \modmore\Commerce\Gateways\Manual\ManualTransaction($value);
+        // Create test transaction
+        $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
+        $lineItem->setName('Red T-Shirt');
+        $lineItem->setUniqueId('1234');
+        $lineItem->setSku('red-t-shirt-123');
+        $lineItem->setQuantity(1);
+        $lineItem->setAmountIncludingTax(29.95);
+        $lineItem->setType(LineItemType::PRODUCT);
+
+
+        $transactionPayload = new \PostFinanceCheckout\Sdk\Model\TransactionCreate();
+        $transactionPayload->setCurrency('EUR');
+        $transactionPayload->setLineItems(array($lineItem));
+        $transactionPayload->setAutoConfirmationEnabled(true);
+        $transactionPayload->setSuccessUrl(GatewayHelper::getReturnUrl($transaction));
+
+        $pfTransaction = $client->getTransactionService()->create($spaceId, $transactionPayload);
+
+        // Create Payment Page URL:
+        $redirectionUrl = $client->getTransactionPaymentPageService()->paymentPageUrl($spaceId, $pfTransaction->getId());
+
+        //$this->commerce->modx->log(1,$redirectionUrl);
+        //header('Location: ' . $redirectionUrl);
+
+        $data = [
+            'reference'             =>  $pfTransaction->getId(),
+            'is_paid'               =>  false,
+            'awaiting_confirmation' =>  true,
+            'redirect_url'          =>  $redirectionUrl,
+            'meta'                  =>  $pfTransaction->getMetaData()
+        ];
+        return new \DigitalPenguin\Commerce_PFCheckout\Gateways\Transactions\Redirect($order,$data);
 
     }
 
@@ -111,6 +111,8 @@ class Visa implements GatewayInterface {
      */
     public function returned(comTransaction $transaction, array $data)
     {
+        $this->commerce->modx->log(1,print_r($transaction->getProperties(),true));
+
         // called when the customer is viewing the payment page after a submit(); we can access stuff in the transaction
         $value = $transaction->getProperty('required_value');
 

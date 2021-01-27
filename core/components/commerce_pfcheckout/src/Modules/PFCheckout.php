@@ -50,7 +50,7 @@ class PFCheckout extends BaseModule {
     }
 
     public function addGateway(Gateways $event) {
-        $event->addGateway(\DigitalPenguin\Commerce_PFCheckout\Gateways\Visa::class, $this->adapter->lexicon('commerce_pfcheckout.visa_gateway'));
+        $event->addGateway(\DigitalPenguin\Commerce_PFCheckout\Gateways\PostFinanceGateway::class, $this->adapter->lexicon('commerce_pfcheckout.gateway'));
     }
 
     public function getModuleConfiguration(\comModule $module)
