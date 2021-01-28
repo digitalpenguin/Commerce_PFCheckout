@@ -40,26 +40,13 @@ class PostFinanceGateway implements GatewayInterface {
      */
     public function view(comOrder $order)
     {
-
-
-        return $this->commerce->view()->render('frontend/gateways/visa.twig', [
+        return $this->commerce->view()->render('frontend/gateways/postfinancegateway.twig', [
             'method'        =>  $this->method->get('id')
         ]);
     }
 
-    /**
-     * Handle the payment submit, returning an up-to-date instance of the PaymentInterface.
-     *
-     * @param comTransaction $transaction
-     * @param array $data
-     * @return TransactionInterface
-     * @throws TransactionException
-     */
-    public function submit(comTransaction $transaction, array $data)
+    public function getClient(): \PostFinanceCheckout\Sdk\ApiClient
     {
-        $order = $transaction->getOrder();
-
-        $spaceId = $this->method->getProperty('pfSpaceId');
         $userId = $this->method->getProperty('pfUserId');
         $secret = $this->method->getProperty('pfSecretApiKey');
 
@@ -68,10 +55,30 @@ class PostFinanceGateway implements GatewayInterface {
         $httpClientType = \PostFinanceCheckout\Sdk\Http\HttpClientFactory::TYPE_CURL;
         $client->setHttpClientType($httpClientType);
 
+        return $client;
+    }
+
+    /**
+     * Handle the payment submit, returning an up-to-date instance of the PaymentInterface.
+     *
+     * @param comTransaction $transaction
+     * @param array $data
+     * @return Transactions\Redirect
+     * @throws \PostFinanceCheckout\Sdk\ApiException
+     * @throws \PostFinanceCheckout\Sdk\Http\ConnectionException
+     * @throws \PostFinanceCheckout\Sdk\VersioningException
+     */
+    public function submit(comTransaction $transaction, array $data) : Transactions\Redirect
+    {
+        $order = $transaction->getOrder();
+
+        $client = $this->getClient();
+        $spaceId = $this->method->getProperty('pfSpaceId');
+
         // Create test transaction
         $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
         $lineItem->setName('Red T-Shirt');
-        $lineItem->setUniqueId('1234');
+        $lineItem->setUniqueId('1111');
         $lineItem->setSku('red-t-shirt-123');
         $lineItem->setQuantity(1);
         $lineItem->setAmountIncludingTax(29.95);
@@ -83,14 +90,16 @@ class PostFinanceGateway implements GatewayInterface {
         $transactionPayload->setLineItems(array($lineItem));
         $transactionPayload->setAutoConfirmationEnabled(true);
         $transactionPayload->setSuccessUrl(GatewayHelper::getReturnUrl($transaction));
+        $transactionPayload->setFailedUrl(GatewayHelper::getReturnUrl($transaction));
 
         $pfTransaction = $client->getTransactionService()->create($spaceId, $transactionPayload);
 
+        // Save the new id
+        $transaction->setProperty('pfTransactionId',$pfTransaction->getId());
+        $transaction->save();
+
         // Create Payment Page URL:
         $redirectionUrl = $client->getTransactionPaymentPageService()->paymentPageUrl($spaceId, $pfTransaction->getId());
-
-        //$this->commerce->modx->log(1,$redirectionUrl);
-        //header('Location: ' . $redirectionUrl);
 
         $data = [
             'reference'             =>  $pfTransaction->getId(),
@@ -109,14 +118,21 @@ class PostFinanceGateway implements GatewayInterface {
      * @param comTransaction $transaction
      * @param array $data
      */
-    public function returned(comTransaction $transaction, array $data)
+    public function returned(comTransaction $transaction, array $data): Transactions\Order
     {
-        $this->commerce->modx->log(1,print_r($transaction->getProperties(),true));
+        $order = $transaction->getOrder();
+        $pfTransactionId = $transaction->getProperty('pfTransactionId');
 
-        // called when the customer is viewing the payment page after a submit(); we can access stuff in the transaction
-        $value = $transaction->getProperty('required_value');
+        $client = $this->getClient();
+        $pfTransaction = $client->getTransactionService()->read($this->method->getProperty('pfSpaceId'),$pfTransactionId);
+        $responseArray = json_decode($pfTransaction,true);
 
-        return new \modmore\Commerce\Gateways\Manual\ManualTransaction($value);
+        // Check if authorized - ( AUTHORIZED, FAILED )
+        $this->commerce->modx->log(1,'Payment Status is: ' . $responseArray['status']);
+
+        $this->commerce->modx->log(1,print_r($responseArray,true));
+
+        return new \DigitalPenguin\Commerce_PFCheckout\Gateways\Transactions\Order($order,$data);
     }
 
     /**
@@ -125,7 +141,7 @@ class PostFinanceGateway implements GatewayInterface {
      * @param comPaymentMethod $method
      * @return Field[]
      */
-    public function getGatewayProperties(comPaymentMethod $method)
+    public function getGatewayProperties(comPaymentMethod $method) : array
     {
 
         $fields = [];
