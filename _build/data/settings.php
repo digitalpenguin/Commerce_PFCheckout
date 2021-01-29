@@ -1,8 +1,8 @@
 <?php
 
 return [
-//    'some_setting' => [
-//        'area' => 'general',
-//        'value' => 'some_value',
-//    ],
+    'payment_template' => [
+        'area' => 'Templates',
+        'value' => 'frontend/gateways/postfinancegateway.twig',
+    ],
 ];

@@ -38,7 +38,9 @@ class PostFinanceGateway implements GatewayInterface {
      */
     public function view(comOrder $order)
     {
-        return $this->commerce->view()->render('frontend/gateways/postfinancegateway.twig', [
+        // Uses twig template name from system setting
+        $template = $this->adapter->getOption('commerce_pfcheckout.payment_template');
+        return $this->commerce->view()->render($template, [
             'method'        =>  $this->method->get('id')
         ]);
     }
@@ -70,7 +72,8 @@ class PostFinanceGateway implements GatewayInterface {
         $client = $this->getClient();
         $spaceId = $this->method->getProperty('pfSpaceId');
 
-        $currency = $order->getCurrency();
+        $currencyObj = $order->getCurrency();
+        $currencyCode = $currencyObj->get('alpha_code');
 
         // Get orderItems
         $orderItems = $order->getItems();
@@ -84,7 +87,7 @@ class PostFinanceGateway implements GatewayInterface {
                 $lineItem->setQuantity($orderItem->get('quantity'));
 
                 // Check currency subunits and round to that precision.
-                $subunits = $currency->get('subunits');
+                $subunits = $currencyObj->get('subunits');
                 $total = round($order->get('total') / 100, $subunits);
                 // This MAY be required if PostFinance only accepts '.' as decimal places.
                 // $total = str_replace(',','.',(string)$total);
@@ -98,7 +101,7 @@ class PostFinanceGateway implements GatewayInterface {
         }
 
         $transactionPayload = new \PostFinanceCheckout\Sdk\Model\TransactionCreate();
-        $transactionPayload->setCurrency($currency);
+        $transactionPayload->setCurrency($currencyCode);
         $transactionPayload->setLineItems($lineItems);
         $transactionPayload->setAutoConfirmationEnabled(true);
         $transactionPayload->setSuccessUrl(GatewayHelper::getReturnUrl($transaction));
@@ -133,17 +136,18 @@ class PostFinanceGateway implements GatewayInterface {
     public function returned(comTransaction $transaction, array $data): Transactions\Order
     {
         $order = $transaction->getOrder();
-        $pfTransactionId = $transaction->getProperty('pfTransactionId');
 
-        $client = $this->getClient();
-        $pfTransaction = $client->getTransactionService()->read($this->method->getProperty('pfSpaceId'), $pfTransactionId);
+        if($pfTransactionId = $transaction->getProperty('pfTransactionId')) {
 
-        $data = json_decode($pfTransaction,true);
+            $client = $this->getClient();
+            $pfTransaction = $client->getTransactionService()->read($this->method->getProperty('pfSpaceId'), $pfTransactionId);
 
-        // Check if authorized - ( AUTHORIZED, FAILED )
-        $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG,'Payment Status is: ' . $data['status']);
-        $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG,print_r($data,true));
+            $data = json_decode($pfTransaction, true);
 
+            // Check if authorized - ( AUTHORIZED, FAILED )
+            $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, 'Payment Status is: ' . $data['status']);
+            $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, print_r($data, true));
+        }
         return new \DigitalPenguin\Commerce_PFCheckout\Gateways\Transactions\Order($order,$data);
     }
 

@@ -107,23 +107,21 @@ $modx->log(modX::LOG_LEVEL_INFO,'Packaged in core, requirements validator, and m
 
 /**
  * Settings
- *
- * If you have settings, uncomment this section to create them. See data/settings.php.
  */
-//$settings = include $sources['data'] . 'transport.settings.php';
-//if (is_array($settings)) {
-//    $attributes = [
-//        xPDOTransport::UNIQUE_KEY => 'key',
-//        xPDOTransport::PRESERVE_KEYS => true,
-//        xPDOTransport::UPDATE_OBJECT => false,
-//    ];
-//    foreach ($settings as $setting) {
-//        $vehicle = $builder->createVehicle($setting,$attributes);
-//        $builder->putVehicle($vehicle);
-//    }
-//    $modx->log(modX::LOG_LEVEL_INFO,'Packaged in ' . count($settings) . ' system settings.'); flush();
-//    unset($settings,$setting,$attributes);
-//}
+$settings = include $sources['data'] . 'transport.settings.php';
+if (is_array($settings)) {
+    $attributes = [
+        xPDOTransport::UNIQUE_KEY => 'key',
+        xPDOTransport::PRESERVE_KEYS => true,
+        xPDOTransport::UPDATE_OBJECT => false,
+    ];
+    foreach ($settings as $setting) {
+        $vehicle = $builder->createVehicle($setting,$attributes);
+        $builder->putVehicle($vehicle);
+    }
+    $modx->log(modX::LOG_LEVEL_INFO,'Packaged in ' . count($settings) . ' system settings.'); flush();
+    unset($settings,$setting,$attributes);
+}
 
 /* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes([

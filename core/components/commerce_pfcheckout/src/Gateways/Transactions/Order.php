@@ -2,6 +2,7 @@
 
 namespace DigitalPenguin\Commerce_PFCheckout\Gateways\Transactions;
 
+use Locale;
 use modmore\Commerce\Gateways\Interfaces\TransactionInterface;
 
 class Order implements TransactionInterface
