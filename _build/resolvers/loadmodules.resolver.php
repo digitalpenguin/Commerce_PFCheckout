@@ -17,7 +17,7 @@ if ($transport->xpdo) {
                 include $basePath . 'vendor/autoload.php';
                 $modulePath = $basePath . 'src/Modules/';
                 // Instruct Commerce to load modules from our directory, providing the base namespace and module path twice
-                $commerce->loadModulesFromDirectory($modulePath, 'DigitalPenguin\\PFCheckout\\Modules\\', $modulePath);
+                $commerce->loadModulesFromDirectory($modulePath, 'DigitalPenguin\\Commerce_PFCheckout\\Modules\\', $modulePath);
                 $modx->log(modX::LOG_LEVEL_INFO, 'Synchronised modules.');
             }
             else {
