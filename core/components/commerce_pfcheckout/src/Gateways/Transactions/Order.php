@@ -22,7 +22,7 @@ class Order implements TransactionInterface
      */
     public function isPaid()
     {
-        return true;//$this->data['success'];
+        return $this->data['state'] === 'AUTHORIZED';
     }
 
     /**
@@ -39,7 +39,10 @@ class Order implements TransactionInterface
      */
     public function isAwaitingConfirmation()
     {
-        return false;//$this->data['success'] ? false : true;
+        if(in_array($this->data['state'],['AUTHORIZED','FAILED'],true)) {
+            return false;
+        }
+        return true;
     }
 
     public function isRedirect()
@@ -55,7 +58,12 @@ class Order implements TransactionInterface
      */
     public function isFailed()
     {
-        return false;//$this->data['success'] ? false : true;
+        if($this->data['state'] === 'FAILED') {
+            if($this->data['failureReason']['category'] !== 'END_USER') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -66,7 +74,12 @@ class Order implements TransactionInterface
      */
     public function isCancelled()
     {
-        return false;//$this->data['cancelled'];
+        if($this->data['state'] === 'FAILED') {
+            if($this->data['failureReason']['category'] === 'END_USER') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -76,7 +89,10 @@ class Order implements TransactionInterface
      */
     public function getErrorMessage()
     {
-        return $this->data['error'];
+        if(isset($this->data['failureReason']['description'])) {
+            return $this->data['failureReason']['description']['en-US'];
+        }
+        return '';
     }
 
 

@@ -10,10 +10,8 @@ use comTransaction;
 use modmore\Commerce\Admin\Widgets\Form\Field;
 use modmore\Commerce\Admin\Widgets\Form\PasswordField;
 use modmore\Commerce\Admin\Widgets\Form\TextField;
-use modmore\Commerce\Gateways\Exceptions\TransactionException;
 use modmore\Commerce\Gateways\Helpers\GatewayHelper;
 use modmore\Commerce\Gateways\Interfaces\GatewayInterface;
-use modmore\Commerce\Gateways\Interfaces\TransactionInterface;
 use PostFinanceCheckout\Sdk\Model\LineItemType;
 
 class PostFinanceGateway implements GatewayInterface {
@@ -64,9 +62,6 @@ class PostFinanceGateway implements GatewayInterface {
      * @param comTransaction $transaction
      * @param array $data
      * @return Transactions\Redirect
-     * @throws \PostFinanceCheckout\Sdk\ApiException
-     * @throws \PostFinanceCheckout\Sdk\Http\ConnectionException
-     * @throws \PostFinanceCheckout\Sdk\VersioningException
      */
     public function submit(comTransaction $transaction, array $data) : Transactions\Redirect
     {
@@ -75,19 +70,36 @@ class PostFinanceGateway implements GatewayInterface {
         $client = $this->getClient();
         $spaceId = $this->method->getProperty('pfSpaceId');
 
-        // Create test transaction
-        $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-        $lineItem->setName('Red T-Shirt');
-        $lineItem->setUniqueId('1111');
-        $lineItem->setSku('red-t-shirt-123');
-        $lineItem->setQuantity(1);
-        $lineItem->setAmountIncludingTax(29.95);
-        $lineItem->setType(LineItemType::PRODUCT);
+        $currency = $order->getCurrency();
 
+        // Get orderItems
+        $orderItems = $order->getItems();
+        $lineItems = [];
+        if(!empty($orderItems)) {
+            foreach($orderItems as $orderItem) {
+                $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
+                $lineItem->setName($orderItem->get('name'));
+                $lineItem->setUniqueId($orderItem->get('id'));
+                $lineItem->setSku($orderItem->get('sku'));
+                $lineItem->setQuantity($orderItem->get('quantity'));
+
+                // Check currency subunits and round to that precision.
+                $subunits = $currency->get('subunits');
+                $total = round($order->get('total') / 100, $subunits);
+                // This MAY be required if PostFinance only accepts '.' as decimal places.
+                // $total = str_replace(',','.',(string)$total);
+
+                $lineItem->setAmountIncludingTax($total);
+                $lineItem->setType(LineItemType::PRODUCT);
+
+                // Push lineItem into array
+                $lineItems[] = $lineItem;
+            }
+        }
 
         $transactionPayload = new \PostFinanceCheckout\Sdk\Model\TransactionCreate();
-        $transactionPayload->setCurrency('EUR');
-        $transactionPayload->setLineItems(array($lineItem));
+        $transactionPayload->setCurrency($currency);
+        $transactionPayload->setLineItems($lineItems);
         $transactionPayload->setAutoConfirmationEnabled(true);
         $transactionPayload->setSuccessUrl(GatewayHelper::getReturnUrl($transaction));
         $transactionPayload->setFailedUrl(GatewayHelper::getReturnUrl($transaction));
@@ -124,13 +136,13 @@ class PostFinanceGateway implements GatewayInterface {
         $pfTransactionId = $transaction->getProperty('pfTransactionId');
 
         $client = $this->getClient();
-        $pfTransaction = $client->getTransactionService()->read($this->method->getProperty('pfSpaceId'),$pfTransactionId);
-        $responseArray = json_decode($pfTransaction,true);
+        $pfTransaction = $client->getTransactionService()->read($this->method->getProperty('pfSpaceId'), $pfTransactionId);
+
+        $data = json_decode($pfTransaction,true);
 
         // Check if authorized - ( AUTHORIZED, FAILED )
-        $this->commerce->modx->log(1,'Payment Status is: ' . $responseArray['status']);
-
-        $this->commerce->modx->log(1,print_r($responseArray,true));
+        $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG,'Payment Status is: ' . $data['status']);
+        $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG,print_r($data,true));
 
         return new \DigitalPenguin\Commerce_PFCheckout\Gateways\Transactions\Order($order,$data);
     }
