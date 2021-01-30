@@ -88,7 +88,7 @@ class PostFinanceGateway implements GatewayInterface {
 
                 // Check currency subunits and round to that precision.
                 $subunits = $currencyObj->get('subunits');
-                $total = round($order->get('total') / 100, $subunits);
+                $total = round($orderItem->get('total') / 100, $subunits);
                 // This MAY be required if PostFinance only accepts '.' as decimal places.
                 // $total = str_replace(',','.',(string)$total);
 
