@@ -5,6 +5,8 @@ https://checkout.postfinance.ch/en-us/doc
 
 _"PostFinance Checkout is the most practical all-in-one payment solution for Swiss online shops – a contractual partner, a plug-in and five payment options for your customers: PostFinance Card, PostFinance e-finance, TWINT, Visa and Mastercard."_
 
+**Thanks to Sebastian Marinescu for sponsoring the development of this module.
+
 Requirements
 -
 
