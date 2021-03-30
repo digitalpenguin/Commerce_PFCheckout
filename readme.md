@@ -36,17 +36,14 @@ Customize the Markup
 
 On the payment page of the checkout process in Commerce, the PostFinance Checkout payment method is
 displayed according to a default twig template located in your MODX install at:
-```core/components/commerce_pfcheckout/templates/frontend/gateways/postfinancegateway.twig```
+```core/components/commerce_pfcheckout/templates/frontend/gateways/postfinancecheckout/gateway.twig```
 
-There is a system setting in the commerce_pfcheckout namespace called `commerce_pfcheckout.payment_template`.
-The default value is ```frontend/gateways/postfinancegateway.twig```
+You can override this default template the same way you would any other template in Commerce:
+https://docs.modmore.com/en/Commerce/v1/Front-end_Theming.html
 
-If you would like to customise the default template, don't edit the file directly as it will
-be overwritten in future upgrades. Instead, create a new file in the same location with a different name 
-e.g. `mycustomtemplate.twig` and update the system setting's value.
-
-For example: ```frontend/gateways/mycustomtemplate.twig```. The module will then use your custom template 
-automatically.
+Add your own custom template file at 
+```core/components/commerce/templates/your-custom-theme-name/frontend/gateways/postfinancecheckout/gateway.twig```
+and it will take precedence over the default module template.
 
 Setup in the PostFinance Checkout Portal
 -

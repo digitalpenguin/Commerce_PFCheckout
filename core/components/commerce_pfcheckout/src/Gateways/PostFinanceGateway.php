@@ -38,9 +38,7 @@ class PostFinanceGateway implements GatewayInterface {
      */
     public function view(comOrder $order)
     {
-        // Uses twig template name from system setting
-        $template = $this->adapter->getOption('commerce_pfcheckout.payment_template');
-        return $this->commerce->view()->render($template, [
+        return $this->commerce->view()->render('frontend/gateways/postfinancecheckout/gateway.twig', [
             'method'        =>  $this->method->get('id')
         ]);
     }

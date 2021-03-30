@@ -1,3 +1,10 @@
+PFCheckout for Commerce 1.0.1-pl
+---------------------------------
+Released on 30/03/2021
+
+- Removed requirement for template system setting. Commerce gives preference to theme templates over module templates so it isn't needed.
+- Added optional logging to transaction->log()
+
 PFCheckout for Commerce 1.0.0-pl
 ---------------------------------
 Released on 30/03/2021

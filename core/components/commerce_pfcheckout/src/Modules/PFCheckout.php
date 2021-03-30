@@ -33,11 +33,6 @@ class PFCheckout extends BaseModule {
         // Load our lexicon
         $this->adapter->loadLexicon('commerce_pfcheckout:default');
 
-        // Add the xPDO package, so Commerce can detect the derivative classes
-//        $root = dirname(__DIR__, 2);
-//        $path = $root . '/model/';
-//        $this->adapter->loadPackage('commerce_pfcheckout', $path);
-
         // Add template path to twig
         $root = dirname(__DIR__, 2);
         $this->commerce->view()->addTemplatesPath($root . '/templates/');
