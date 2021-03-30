@@ -144,9 +144,9 @@ class PostFinanceGateway implements GatewayInterface {
             $data = json_decode($pfTransaction, true);
 
             // Check if authorized - ( AUTHORIZED, FAILED )
-            $transaction->log('Payment Status is: ' . $data['status'] . '. ' . print_r($data, true),comTransactionLog::SOURCE_GATEWAY);
+            $transaction->log('Payment Status is: ' . $data['state'] . '. ' . print_r($data, true),comTransactionLog::SOURCE_GATEWAY);
             $transaction->save();
-            $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, 'Payment Status is: ' . $data['status']);
+            $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, 'Payment Status is: ' . $data['state']);
             $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, print_r($data, true));
         }
         return new \DigitalPenguin\Commerce_PFCheckout\Gateways\Transactions\Order($order,$data);
