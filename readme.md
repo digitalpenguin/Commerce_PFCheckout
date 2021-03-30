@@ -45,6 +45,8 @@ Add your own custom template file at
 ```core/components/commerce/templates/your-custom-theme-name/frontend/gateways/postfinancecheckout/gateway.twig```
 and it will take precedence over the default module template.
 
+Important: remember to set your custom theme name in the Commerce `commerce.theme` (and optional custom path in `commerce.themes_path`) system settings, or it won't be overridden. 
+
 Setup in the PostFinance Checkout Portal
 -
 
