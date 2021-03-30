@@ -6,6 +6,7 @@ use Commerce;
 use comOrder;
 use comPaymentMethod;
 use comTransaction;
+use comTransactionLog;
 
 use modmore\Commerce\Admin\Widgets\Form\Field;
 use modmore\Commerce\Admin\Widgets\Form\PasswordField;
@@ -143,6 +144,8 @@ class PostFinanceGateway implements GatewayInterface {
             $data = json_decode($pfTransaction, true);
 
             // Check if authorized - ( AUTHORIZED, FAILED )
+            $transaction->log('Payment Status is: ' . $data['status'] . '. ' . print_r($data, true),comTransactionLog::SOURCE_GATEWAY);
+            $transaction->save();
             $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, 'Payment Status is: ' . $data['status']);
             $this->commerce->modx->log(MODX_LOG_LEVEL_DEBUG, print_r($data, true));
         }
