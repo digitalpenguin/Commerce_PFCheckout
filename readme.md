@@ -7,7 +7,7 @@ _"PostFinance Checkout is the most practical all-in-one payment solution for Swi
 
 Developed by Murray Wood at [Digital Penguin Ltd.](https://www.digitalpenguin.hk "Digital Penguin - Hong Kong")
 
-**Thanks to Sebastian Marinescu for sponsoring the development of this module.
+**Thanks to Sebastian G. Marinescu from [xvanced](https://xvanced.com) for sponsoring the development of this module.
 
 
 Requirements
