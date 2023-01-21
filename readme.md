@@ -61,6 +61,11 @@ You will also need to get your three authentication details here:
 
 Login here: https://checkout.postfinance.ch/user/login
 
+Note: The above can be hard to find. After logging in, go to "Account", create a "Space" and copy the `space_id`. 
+In the sub-menu, go to "Roles" and create a role with all the permissions. Then, go to "Application Users", and
+create a new application user and assign the role you just created to this user. Click on "Generate New Key" and then 
+copy the `user_id` and `secret_key` it gives you. 
+
 Testing
 =
 
