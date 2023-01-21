@@ -23,7 +23,7 @@ class Order implements TransactionInterface
      */
     public function isPaid()
     {
-        return $this->data['state'] === 'AUTHORIZED';
+        return in_array($this->data['state'], ['AUTHORIZED','FULFILL']);
     }
 
     /**
@@ -40,7 +40,7 @@ class Order implements TransactionInterface
      */
     public function isAwaitingConfirmation()
     {
-        if(in_array($this->data['state'],['AUTHORIZED','FAILED'],true)) {
+        if (in_array($this->data['state'], ['FULFILL','AUTHORIZED','FAILED'],true)) {
             return false;
         }
         return true;
@@ -59,8 +59,8 @@ class Order implements TransactionInterface
      */
     public function isFailed()
     {
-        if($this->data['state'] === 'FAILED') {
-            if($this->data['failureReason']['category'] !== 'END_USER') {
+        if ($this->data['state'] === 'FAILED') {
+            if ($this->data['failureReason']['category'] !== 'END_USER') {
                 return true;
             }
         }
@@ -75,8 +75,8 @@ class Order implements TransactionInterface
      */
     public function isCancelled()
     {
-        if($this->data['state'] === 'FAILED') {
-            if($this->data['failureReason']['category'] === 'END_USER') {
+        if ($this->data['state'] === 'FAILED') {
+            if ($this->data['failureReason']['category'] === 'END_USER') {
                 return true;
             }
         }
@@ -90,7 +90,7 @@ class Order implements TransactionInterface
      */
     public function getErrorMessage()
     {
-        if(isset($this->data['failureReason']['description'])) {
+        if (isset($this->data['failureReason']['description'])) {
             return $this->data['failureReason']['description']['en-US'];
         }
         return '';
