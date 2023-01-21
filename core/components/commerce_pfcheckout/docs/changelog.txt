@@ -3,6 +3,7 @@ PFCheckout for Commerce 1.0.2-pl
 Released on 21/01/2023
 
 - Update postfinancecheckout/sdk composer dependency.
+- Update successful transaction state to "FULFILL". This is due a breaking change in the API.
 
 PFCheckout for Commerce 1.0.1-pl
 ---------------------------------
