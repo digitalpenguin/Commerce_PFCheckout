@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1856b048b4d8cd7c3f7c90dbe4a3cfa7",
+    "content-hash": "b547455bba547fb2ce0727beb2a615e6",
     "packages": [
         {
             "name": "postfinancecheckout/sdk",
-            "version": "2.1.6",
+            "version": "3.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pfpayments/php-sdk.git",
-                "reference": "f9245b064ade5c2eff1dc29f99a1b55f3eb8db9d"
+                "reference": "12c5f71917c2e4dfaba3dd8e7523ab7300da9f7c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pfpayments/php-sdk/zipball/f9245b064ade5c2eff1dc29f99a1b55f3eb8db9d",
-                "reference": "f9245b064ade5c2eff1dc29f99a1b55f3eb8db9d",
+                "url": "https://api.github.com/repos/pfpayments/php-sdk/zipball/12c5f71917c2e4dfaba3dd8e7523ab7300da9f7c",
+                "reference": "12c5f71917c2e4dfaba3dd8e7523ab7300da9f7c",
                 "shasum": ""
             },
             "require": {
@@ -26,7 +26,7 @@
                 "php": ">=5.6"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8"
+                "phpunit/phpunit": "~8"
             },
             "type": "library",
             "autoload": {
@@ -53,7 +53,11 @@
                 "postfinancecheckout",
                 "sdk"
             ],
-            "time": "2020-12-17T10:38:07+00:00"
+            "support": {
+                "issues": "https://github.com/pfpayments/php-sdk/issues",
+                "source": "https://github.com/pfpayments/php-sdk/tree/3.1.4"
+            },
+            "time": "2023-01-09T14:15:06+00:00"
         }
     ],
     "packages-dev": [],
@@ -66,5 +70,5 @@
         "php": ">=7.1.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.3.0"
 }

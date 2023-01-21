@@ -1,7 +1,7 @@
 {
     "require": {
         "php": ">=7.1.0",
-        "postfinancecheckout/sdk": "^2.1"
+        "postfinancecheckout/sdk": "^3.1"
     },
     "autoload": {
         "psr-4": {
