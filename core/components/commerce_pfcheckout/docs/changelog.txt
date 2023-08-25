@@ -1,3 +1,9 @@
+PostFinance Checkout for Commerce 1.0.3-pl
+---------------------------------
+Released on 2023-08-25
+
+- Use Commerce EventDispatcher wrapper [cfe21c5]
+
 PFCheckout for Commerce 1.0.2-pl
 ---------------------------------
 Released on 21/01/2023
